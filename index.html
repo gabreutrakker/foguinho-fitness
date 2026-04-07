@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Foguinho Fitness - Login</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="auth-card">
+            <div class="logo">
+                <div class="fire-icon">🔥</div>
+                <h1>Foguinho Fitness</h1>
+            </div>
+            
+            <h2>Bem-vindo de volta!</h2>
+            <p class="subtitle">Entre para continuar sua jornada fitness</p>
+            
+            <form id="loginForm" class="auth-form">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required placeholder="seu@email.com">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Senha</label>
+                    <input type="password" id="password" name="password" required placeholder="••••••••">
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Entrar</button>
+            </form>
+            
+            <p class="auth-link">
+                Não tem uma conta? <a href="register.html">Cadastre-se</a>
+            </p>
+        </div>
+    </div>
+    
+    <script src="js/auth.js"></script>
+    <script src="js/login.js"></script>
+</body>
+</html>

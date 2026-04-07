@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Foguinho Fitness - Metas</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <span class="fire-icon">🔥</span>
+            <span>Foguinho Fitness</span>
+        </div>
+        <div class="nav-links">
+            <a href="home.html">Home</a>
+            <a href="goals.html" class="active">Metas</a>
+            <a href="friends.html">Amigos</a>
+            <a href="profile.html">Perfil</a>
+            <a href="#" id="logoutBtn">Sair</a>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <div class="page-header">
+            <h1>Minhas Metas</h1>
+            <button class="btn btn-primary" id="addGoalBtn">+ Nova Meta</button>
+        </div>
+        
+        <div id="goalsContainer" class="goals-grid">
+             Goals will be loaded here 
+        </div>
+    </div>
+    
+     Modal for Add/Edit Goal 
+    <div id="goalModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Nova Meta</h2>
+                <button class="close-btn" id="closeModal">&times;</button>
+            </div>
+            <form id="goalForm">
+                <input type="hidden" id="goalId">
+                
+                <div class="form-group">
+                    <label for="goalName">Nome da Meta</label>
+                    <input type="text" id="goalName" required placeholder="Ex: Beber 2L de água">
+                </div>
+                
+                <div class="form-group">
+                    <label for="goalType">Tipo</label>
+                    <select id="goalType" required>
+                        <option value="water">💧 Água</option>
+                        <option value="exercise">🏃 Exercício</option>
+                        <option value="study">📚 Estudo</option>
+                        <option value="sleep">😴 Sono</option>
+                        <option value="food">🥗 Alimentação</option>
+                        <option value="meditation">🧘 Meditação</option>
+                        <option value="other">✨ Outro</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="goalTarget">Meta Diária</label>
+                    <input type="number" id="goalTarget" required min="1" placeholder="Ex: 2000">
+                </div>
+                
+                <div class="form-group">
+                    <label for="goalUnit">Unidade</label>
+                    <input type="text" id="goalUnit" required placeholder="Ex: ml, minutos, páginas">
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelBtn">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script src="js/auth.js"></script>
+    <script src="js/goals.js"></script>
+</body>
+</html>

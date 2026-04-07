@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Foguinho Fitness - Perfil</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <span class="fire-icon">🔥</span>
+            <span>Foguinho Fitness</span>
+        </div>
+        <div class="nav-links">
+            <a href="home.html">Home</a>
+            <a href="goals.html">Metas</a>
+            <a href="friends.html">Amigos</a>
+            <a href="profile.html" class="active">Perfil</a>
+            <a href="#" id="logoutBtn">Sair</a>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <div class="profile-header">
+            <div class="profile-avatar">
+                <span id="profileInitial">U</span>
+            </div>
+            <div class="profile-info">
+                <h1 id="profileName">Usuário</h1>
+                <p id="profileEmail">usuario@email.com</p>
+            </div>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">🎯</div>
+                <div class="stat-value" id="totalGoals">0</div>
+                <div class="stat-label">Metas Criadas</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">✅</div>
+                <div class="stat-value" id="completedGoals">0</div>
+                <div class="stat-label">Metas Concluídas</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">🔥</div>
+                <div class="stat-value" id="currentStreak">0</div>
+                <div class="stat-label">Dias Seguidos</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">👥</div>
+                <div class="stat-value" id="totalFriends">0</div>
+                <div class="stat-label">Amigos</div>
+            </div>
+        </div>
+        
+        <div class="achievements-section">
+            <h2>Conquistas</h2>
+            <div id="achievementsList" class="achievements-grid">
+                 Achievements will be loaded here 
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/auth.js"></script>
+    <script src="js/profile.js"></script>
+</body>
+</html>
