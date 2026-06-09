@@ -10,7 +10,7 @@ import { getTodayCompletedCount } from "@/lib/progress"
 import { getAcceptedFriends } from "@/lib/friends"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { LogOut, Target, Trophy, Users, Flame } from "lucide-react"
+import { LogOut, Target, Trophy, Users, Flame, BarChart3 } from "lucide-react"
 
 export default function HomePage() {
   const router = useRouter()
@@ -140,7 +140,7 @@ export default function HomePage() {
           </div>
 
           {/* Action Buttons */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             <Button
               size="lg"
               className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-semibold h-14"
@@ -164,6 +164,14 @@ export default function HomePage() {
             >
               <Trophy className="w-5 h-5 mr-2" />
               Conquistas
+            </Button>
+            <Button
+              size="lg"
+              className="bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white font-semibold h-14"
+              onClick={() => router.push("/ranking")}
+            >
+              <BarChart3 className="w-5 h-5 mr-2" />
+              Ranking
             </Button>
             <Button
               size="lg"

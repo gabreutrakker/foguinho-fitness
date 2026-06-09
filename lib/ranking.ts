@@ -1,0 +1,55 @@
+// Ranking utilities
+import { getOrCreatePet } from "./pet"
+
+export interface RankingEntry {
+  usuario_id: number
+  nome: string
+  nivel: number
+  experiencia: number
+  estagio: string
+  pet_nome: string
+  metas_completadas: number
+  conquistas: number
+  pontos: number
+}
+
+// Sincroniza o pet do usuario atual (localStorage) com o banco de dados
+export async function syncCurrentUserPet(userId: string): Promise<void> {
+  try {
+    const pet = getOrCreatePet(userId)
+
+    await fetch("/api/pet", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId,
+        nome: pet.nome,
+        experiencia: pet.experiencia,
+        energia: pet.energia,
+        felicidade: pet.felicidade,
+        nivel: pet.nivel,
+        estagio: pet.estagio,
+      }),
+    })
+  } catch (error) {
+    console.error("[v0] Erro ao sincronizar pet:", error)
+  }
+}
+
+// Busca o ranking geral de todos os usuarios
+export async function getRanking(): Promise<RankingEntry[]> {
+  try {
+    const response = await fetch("/api/ranking")
+    const data = await response.json()
+
+    if (!response.ok) {
+      console.error("[v0] Erro ao buscar ranking:", data.error)
+      return []
+    }
+
+    return data.ranking || []
+  } catch (error) {
+    console.error("[v0] Erro ao buscar ranking:", error)
+    return []
+  }
+}
