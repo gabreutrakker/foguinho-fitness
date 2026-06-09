@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { type Pet, getPet, getPetStageInfo, feedPet } from "@/lib/pet"
+import { type Pet, getOrCreatePet, getPetStageInfo, feedPet } from "@/lib/pet"
 import { getCurrentUser } from "@/lib/auth"
 import { Progress } from "@/components/ui/progress"
 import { Button } from "@/components/ui/button"
@@ -17,7 +17,7 @@ export function PetDisplay() {
   const loadPet = () => {
     const user = getCurrentUser()
     if (user) {
-      const userPet = getPet(user.id)
+      const userPet = getOrCreatePet(user.id)
       setPet(userPet)
     }
   }
