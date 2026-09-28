@@ -40,7 +40,7 @@ export async function syncCurrentUserPet(userId: string): Promise<void> {
 export async function getRanking(userId: string): Promise<RankingEntry[]> {
   try {
     await syncCurrentUserPet(userId)
-    const response = await fetch(`/api/ranking?userId=${encodeURIComponent(userId)}`, { cache: "no-store" })
+    const response = await fetch(`/api/ranking?userId=${encodeURIComponent(userId)}&ts=${Date.now()}`, { cache: "no-store" })
     const contentType = response.headers.get("content-type") || ""
     const data = contentType.includes("application/json") ? await response.json() : null
 

@@ -8,6 +8,7 @@ import { DailyProgressCard } from "@/components/daily-progress-card"
 import { getCurrentUser, logout } from "@/lib/auth"
 import { getTodayCompletedCount } from "@/lib/progress"
 import { getAcceptedFriends } from "@/lib/friends"
+import { getOrCreatePet } from "@/lib/pet"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { LogOut, Target, Trophy, Users, Flame, BarChart3 } from "lucide-react"
@@ -99,7 +100,7 @@ export default function HomePage() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="px-3 pb-3">
-                <p className="text-xl md:text-2xl font-bold text-gray-800 truncate">Foguinho</p>
+                <p className="text-xl md:text-2xl font-bold text-gray-800 truncate">{getCurrentUser() ? getOrCreatePet(getCurrentUser()!.id).nome : "Meu Pet"}</p>
                 <p className="text-xs md:text-sm text-gray-600 mt-1 truncate">Ver evolucoes</p>
               </CardContent>
             </Card>

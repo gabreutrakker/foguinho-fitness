@@ -6,12 +6,14 @@ import { AuthGuard } from "@/components/auth-guard"
 import { AchievementCard } from "@/components/achievement-card"
 import { StatsCard } from "@/components/stats-card"
 import { getCurrentUser } from "@/lib/auth"
-import { getPet, getPetStageInfo, updatePet } from "@/lib/pet"
+import { getOrCreatePet, getPetStageInfo, updatePet } from "@/lib/pet"
 import { getGoals } from "@/lib/goals"
 import { getAchievements, getAchievementStats, checkAchievements } from "@/lib/achievements"
 import { getAcceptedFriends } from "@/lib/friends"
 import { getTodayCompletedCount } from "@/lib/progress"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { ArrowLeft, Flame, Target, Users, Trophy, TrendingUp, Calendar } from "lucide-react"
@@ -21,6 +23,10 @@ export default function ProfilePage() {
   const router = useRouter()
   const [userName, setUserName] = useState("")
   const [userEmail, setUserEmail] = useState("")
+  const [bio, setBio] = useState("")
+  const [avatarUrl, setAvatarUrl] = useState("")
+  const [petName, setPetName] = useState("")
+  const [saveMessage, setSaveMessage] = useState("")
   const [pet, setPet] = useState<any>(null)
   const [achievements, setAchievements] = useState<any[]>([])
   const [stats, setStats] = useState({
@@ -40,8 +46,11 @@ export default function ProfilePage() {
 
     setUserName(user.nome)
     setUserEmail(user.email)
+    setBio(user.biografia || "")
+    setAvatarUrl(user.avatar_url || "")
 
-    const userPet = getPet(user.id)
+    const userPet = getOrCreatePet(user.id)
+    setPetName(userPet.nome)
     setPet(userPet)
 
     const goals = getGoals(user.id)
@@ -65,6 +74,28 @@ export default function ProfilePage() {
   }
 
   const stageInfo = pet ? getPetStageInfo(pet.estagio) : null
+
+  const saveProfile = async () => {
+    const user = getCurrentUser()
+    if (!user) return
+    const nextPet = updatePet(user.id, { nome: petName.trim() || "Meu Pet" })
+    setPet(nextPet)
+    setPetName(nextPet.nome)
+    try {
+      const response = await fetch("/api/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: user.id, biografia: bio.trim(), avatarUrl }),
+      })
+      if (!response.ok) throw new Error("profile update failed")
+      const data = await response.json()
+      localStorage.setItem("foguinho_user", JSON.stringify({ ...user, ...data.user }))
+      setSaveMessage("Perfil atualizado")
+    } catch (error) {
+      console.error("[v0] Falha ao salvar perfil:", error)
+      setSaveMessage("Não foi possível salvar agora")
+    }
+  }
 
   return (
     <AuthGuard>
@@ -115,6 +146,16 @@ export default function ProfilePage() {
                   )}
                 </div>
               </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-2 border-orange-200 shadow-lg">
+            <CardHeader><CardTitle className="text-xl text-orange-600">Editar perfil</CardTitle></CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2"><label htmlFor="pet-name" className="text-sm font-medium">Nome do pet</label><Input id="pet-name" value={petName} maxLength={40} onChange={(event) => setPetName(event.target.value)} placeholder="Escolha um nome" /></div>
+              <div className="space-y-2"><label htmlFor="bio" className="text-sm font-medium">Biografia</label><Textarea id="bio" value={bio} maxLength={500} onChange={(event) => setBio(event.target.value)} placeholder="Conte um pouco sobre você" /></div>
+              <div className="space-y-2"><label htmlFor="avatar-url" className="text-sm font-medium">Foto de perfil (URL)</label><Input id="avatar-url" value={avatarUrl} onChange={(event) => setAvatarUrl(event.target.value)} placeholder="https://..." /></div>
+              <div className="flex items-center gap-3"><Button onClick={() => void saveProfile()} className="bg-orange-500 hover:bg-orange-600">Salvar alterações</Button>{saveMessage && <span className="text-sm text-gray-600" role="status">{saveMessage}</span>}</div>
             </CardContent>
           </Card>
 

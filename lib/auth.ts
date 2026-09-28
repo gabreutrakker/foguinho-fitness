@@ -3,6 +3,8 @@ export interface User {
   nome: string
   email: string
   data_criacao: string
+  biografia?: string | null
+  avatar_url?: string | null
 }
 
 export interface AuthState {
