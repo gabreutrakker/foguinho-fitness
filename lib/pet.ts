@@ -1,4 +1,13 @@
 // Pet management utilities
+async function syncPetWithServer(pet: Pet) {
+  if (typeof window === "undefined") return
+  try {
+    await fetch("/api/pet", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(pet) })
+  } catch (error) {
+    console.error("[v0] Falha ao sincronizar pet:", error)
+  }
+}
+
 export interface Pet {
   usuarioId: string
   nome: string
@@ -43,11 +52,13 @@ export function updatePet(userId: string, updates: Partial<Pet>): Pet {
     }
     pets.push(newPet)
     localStorage.setItem("foguinho_pets", JSON.stringify(pets))
+    void syncPetWithServer(newPet)
     return newPet
   }
 
   pets[petIndex] = { ...pets[petIndex], ...updates }
   localStorage.setItem("foguinho_pets", JSON.stringify(pets))
+  void syncPetWithServer(pets[petIndex])
 
   return pets[petIndex]
 }

@@ -32,7 +32,11 @@ export default function RankingPage() {
         // Sincroniza o pet do usuario atual antes de buscar o ranking
         await syncCurrentUserPet(user.id.toString())
       }
-      const data = await getRanking()
+      if (!user) {
+        setLoading(false)
+        return
+      }
+      const data = await getRanking(user.id.toString())
       setRanking(data)
       setLoading(false)
     }

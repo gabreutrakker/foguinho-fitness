@@ -37,9 +37,10 @@ export async function syncCurrentUserPet(userId: string): Promise<void> {
 }
 
 // Busca o ranking geral de todos os usuarios
-export async function getRanking(): Promise<RankingEntry[]> {
+export async function getRanking(userId: string): Promise<RankingEntry[]> {
   try {
-    const response = await fetch("/api/ranking")
+    await syncCurrentUserPet(userId)
+    const response = await fetch(`/api/ranking?userId=${encodeURIComponent(userId)}`, { cache: "no-store" })
     const data = await response.json()
 
     if (!response.ok) {
