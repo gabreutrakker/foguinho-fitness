@@ -21,7 +21,7 @@ const ESTAGIO_LABEL: Record<string, string> = {
 export default function RankingPage() {
   const router = useRouter()
   const [ranking, setRanking] = useState<RankingEntry[]>([])
-  const [currentUserId, setCurrentUserId] = useState<number | null>(null)
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {

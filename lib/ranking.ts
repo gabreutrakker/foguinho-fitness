@@ -2,7 +2,7 @@
 import { getOrCreatePet } from "./pet"
 
 export interface RankingEntry {
-  usuario_id: number
+  usuario_id: string
   nome: string
   nivel: number
   experiencia: number
@@ -48,7 +48,10 @@ export async function getRanking(userId: string): Promise<RankingEntry[]> {
       return []
     }
 
-    return data.ranking || []
+    return (data.ranking || []).map((entry: RankingEntry & { usuario_id: string | number }) => ({
+      ...entry,
+      usuario_id: String(entry.usuario_id),
+    }))
   } catch (error) {
     console.error("[v0] Erro ao buscar ranking:", error)
     return []
