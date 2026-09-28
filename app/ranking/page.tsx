@@ -7,7 +7,7 @@ import { getCurrentUser } from "@/lib/auth"
 import { getRanking, syncCurrentUserPet, type RankingEntry } from "@/lib/ranking"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { ArrowLeft, Trophy, Medal, Award, Crown, Flame, Target, Star } from "lucide-react"
+import { ArrowLeft, Trophy, Medal, Award, Crown, Flame, Target, Star, RefreshCw } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const ESTAGIO_LABEL: Record<string, string> = {
@@ -24,23 +24,22 @@ export default function RankingPage() {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    async function loadRanking() {
-      const user = getCurrentUser()
-      if (user) {
-        setCurrentUserId(user.id)
-        // Sincroniza o pet do usuario atual antes de buscar o ranking
-        await syncCurrentUserPet(user.id.toString())
-      }
-      if (!user) {
-        setLoading(false)
-        return
-      }
-      const data = await getRanking(user.id.toString())
-      setRanking(data)
+  async function loadRanking() {
+    setLoading(true)
+    const user = getCurrentUser()
+    if (!user) {
       setLoading(false)
+      return
     }
-    loadRanking()
+    setCurrentUserId(user.id)
+    await syncCurrentUserPet(user.id.toString())
+    const data = await getRanking(user.id.toString())
+    setRanking(data)
+    setLoading(false)
+  }
+
+  useEffect(() => {
+    void loadRanking()
   }, [])
 
   const topThree = ranking.slice(0, 3)
@@ -57,6 +56,10 @@ export default function RankingPage() {
               Voltar
             </Button>
             <h1 className="text-2xl font-bold text-orange-600">Ranking</h1>
+            <Button variant="outline" size="sm" onClick={() => void loadRanking()} disabled={loading} className="ml-auto border-orange-200 text-orange-600">
+              <RefreshCw className={cn("w-4 h-4 mr-2", loading && "animate-spin")} />
+              Atualizar
+            </Button>
           </div>
         </header>
 

@@ -2,7 +2,20 @@
 async function syncPetWithServer(pet: Pet) {
   if (typeof window === "undefined") return
   try {
-    await fetch("/api/pet", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(pet) })
+    const response = await fetch("/api/pet", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId: pet.usuarioId,
+        nome: pet.nome,
+        experiencia: pet.experiencia,
+        energia: pet.energia,
+        felicidade: pet.felicidade,
+        nivel: pet.nivel,
+        estagio: pet.estagio,
+      }),
+    })
+    if (!response.ok) throw new Error(`Falha ao sincronizar pet (${response.status})`)
   } catch (error) {
     console.error("[v0] Falha ao sincronizar pet:", error)
   }
@@ -81,6 +94,7 @@ export function createPet(userId: string, nome: string = "Foguinho"): Pet {
 
   pets.push(newPet)
   localStorage.setItem("foguinho_pets", JSON.stringify(pets))
+  void syncPetWithServer(newPet)
 
   return newPet
 }
