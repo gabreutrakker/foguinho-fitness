@@ -133,7 +133,7 @@ function PodiumSpot({
 }: {
   entry: RankingEntry | undefined
   position: number
-  currentUserId: number | null
+  currentUserId: string | null
 }) {
   if (!entry) return <div />
 

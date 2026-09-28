@@ -41,10 +41,11 @@ export async function getRanking(userId: string): Promise<RankingEntry[]> {
   try {
     await syncCurrentUserPet(userId)
     const response = await fetch(`/api/ranking?userId=${encodeURIComponent(userId)}`, { cache: "no-store" })
-    const data = await response.json()
+    const contentType = response.headers.get("content-type") || ""
+    const data = contentType.includes("application/json") ? await response.json() : null
 
-    if (!response.ok) {
-      console.error("[v0] Erro ao buscar ranking:", data.error)
+    if (!response.ok || !data) {
+      console.error("[v0] Erro ao buscar ranking:", data?.error || `HTTP ${response.status}`)
       return []
     }
 
