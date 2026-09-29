@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
-import { ArrowLeft, Flame, Target, Users, Trophy, TrendingUp, Calendar } from "lucide-react"
+import { ArrowLeft, Flame, Target, Users, Trophy, TrendingUp, Calendar, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 export default function ProfilePage() {
@@ -75,6 +75,22 @@ export default function ProfilePage() {
 
   const stageInfo = pet ? getPetStageInfo(pet.estagio) : null
 
+  const handleAvatarFile = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+    if (!file.type.startsWith("image/")) {
+      setSaveMessage("Escolha uma imagem válida")
+      return
+    }
+    if (file.size > 1_500_000) {
+      setSaveMessage("A imagem deve ter no máximo 1,5 MB")
+      return
+    }
+    const reader = new FileReader()
+    reader.onload = () => setAvatarUrl(typeof reader.result === "string" ? reader.result : "")
+    reader.readAsDataURL(file)
+  }
+
   const saveProfile = async () => {
     const user = getCurrentUser()
     if (!user) return
@@ -119,15 +135,21 @@ export default function ProfilePage() {
           <Card className="border-2 border-orange-200 shadow-lg">
             <CardContent className="p-6">
               <div className="flex flex-col md:flex-row items-center gap-6">
-                {/* Pet Avatar */}
-                <div
-                  className={cn(
-                    "rounded-full bg-gradient-to-br flex items-center justify-center shadow-xl flex-shrink-0",
-                    stageInfo?.cor || "from-orange-400 to-red-400",
-                    "w-32 h-32",
+                {/* Avatar */}
+                <div className="relative flex-shrink-0">
+                  {avatarUrl ? (
+                    <img src={avatarUrl} alt={`Foto de perfil de ${userName}`} className="w-32 h-32 rounded-full object-cover shadow-xl border-4 border-white" />
+                  ) : (
+                    <div
+                      className={cn(
+                        "rounded-full bg-gradient-to-br flex items-center justify-center shadow-xl",
+                        stageInfo?.cor || "from-orange-400 to-red-400",
+                        "w-32 h-32",
+                      )}
+                    >
+                      <Flame className="w-16 h-16 text-white" />
+                    </div>
                   )}
-                >
-                  <Flame className="w-16 h-16 text-white" />
                 </div>
 
                 {/* User Info */}
@@ -154,7 +176,14 @@ export default function ProfilePage() {
             <CardContent className="space-y-4">
               <div className="space-y-2"><label htmlFor="pet-name" className="text-sm font-medium">Nome do pet</label><Input id="pet-name" value={petName} maxLength={40} onChange={(event) => setPetName(event.target.value)} placeholder="Escolha um nome" /></div>
               <div className="space-y-2"><label htmlFor="bio" className="text-sm font-medium">Biografia</label><Textarea id="bio" value={bio} maxLength={500} onChange={(event) => setBio(event.target.value)} placeholder="Conte um pouco sobre você" /></div>
-              <div className="space-y-2"><label htmlFor="avatar-url" className="text-sm font-medium">Foto de perfil (URL)</label><Input id="avatar-url" value={avatarUrl} onChange={(event) => setAvatarUrl(event.target.value)} placeholder="https://..." /></div>
+              <div className="space-y-2">
+                <label htmlFor="avatar-file" className="text-sm font-medium">Foto de perfil</label>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <Input id="avatar-file" type="file" accept="image/png,image/jpeg,image/webp" onChange={handleAvatarFile} className="cursor-pointer" />
+                  {avatarUrl && <Button type="button" variant="outline" onClick={() => setAvatarUrl("")} aria-label="Remover foto"><X className="w-4 h-4 mr-1" />Remover</Button>}
+                </div>
+                <p className="text-xs text-gray-500">PNG, JPG ou WebP, até 1,5 MB.</p>
+              </div>
               <div className="flex items-center gap-3"><Button onClick={() => void saveProfile()} className="bg-orange-500 hover:bg-orange-600">Salvar alterações</Button>{saveMessage && <span className="text-sm text-gray-600" role="status">{saveMessage}</span>}</div>
             </CardContent>
           </Card>
