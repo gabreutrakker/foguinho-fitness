@@ -7,7 +7,7 @@ export async function POST(request: Request) {
     const sql = getDb()
     const { email, password } = await request.json()
 
-    const users = await sql`SELECT id, nome, email, senha, data_criacao FROM usuarios WHERE email = ${email}`
+    const users = await sql`SELECT id, nome, email, senha, data_criacao, biografia, avatar_url FROM usuarios WHERE email = ${email}`
 
     if (users.length === 0) {
       return NextResponse.json({ error: "Email ou senha incorretos" }, { status: 401 })
