@@ -8,6 +8,7 @@ export interface RankingEntry {
   experiencia: number
   estagio: string
   pet_nome: string
+  avatar_url?: string | null
   metas_completadas: number
   conquistas: number
   pontos: number

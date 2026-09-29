@@ -7,7 +7,7 @@ import { PetDisplay } from "@/components/pet-display"
 import { DailyProgressCard } from "@/components/daily-progress-card"
 import { getCurrentUser, logout } from "@/lib/auth"
 import { getTodayCompletedCount } from "@/lib/progress"
-import { getAcceptedFriends } from "@/lib/friends"
+import { getFriendsData } from "@/lib/friends"
 import { getOrCreatePet } from "@/lib/pet"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -18,16 +18,20 @@ export default function HomePage() {
   const [userName, setUserName] = useState("")
   const [completedCount, setCompletedCount] = useState({ completed: 0, total: 0 })
   const [friendsCount, setFriendsCount] = useState(0)
+  const [pendingRequests, setPendingRequests] = useState(0)
 
   useEffect(() => {
     const user = getCurrentUser()
-    if (user) {
-      setUserName(user.nome)
-      const count = getTodayCompletedCount(user.id)
-      setCompletedCount(count)
-      const friends = getAcceptedFriends(user.id)
-      setFriendsCount(friends.length)
-    }
+    if (!user) return
+    setUserName(user.nome)
+    setCompletedCount(getTodayCompletedCount(user.id))
+    void getFriendsData(user.id).then((data) => {
+      setFriendsCount(data.friends.length)
+      setPendingRequests(data.requests.length)
+    }).catch(() => {
+      setFriendsCount(0)
+      setPendingRequests(0)
+    })
   }, [])
 
   const handleLogout = () => {
@@ -176,11 +180,12 @@ export default function HomePage() {
             </Button>
           <Button
             size="lg"
-            className="bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-semibold h-14"
+            className="relative bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-semibold h-14"
             onClick={() => router.push("/notifications")}
           >
             <Bell className="w-5 h-5 mr-2" />
             Avisos
+            {pendingRequests > 0 && <span aria-label={`${pendingRequests} pedidos de amizade pendentes`} className="absolute -right-2 -top-2 flex h-6 min-w-6 items-center justify-center rounded-full border-2 border-white bg-red-600 px-1 text-xs font-bold text-white shadow">{pendingRequests > 99 ? "99+" : pendingRequests}</span>}
           </Button>
           <Button
             size="lg"

@@ -8,6 +8,10 @@ import { getRanking, syncCurrentUserPet, type RankingEntry } from "@/lib/ranking
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { ArrowLeft, Trophy, Medal, Award, Crown, Flame, Target, Star, RefreshCw } from "lucide-react"
+
+function UserAvatar({ src, name, className = "h-12 w-12" }: { src?: string | null; name: string; className?: string }) {
+  return src ? <img src={src} alt={`Foto de ${name}`} className={cn("rounded-full object-cover shadow", className)} /> : <div className={cn("rounded-full bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center shadow", className)}><Flame className="h-1/2 w-1/2 text-white" /></div>
+}
 import { cn } from "@/lib/utils"
 
 const ESTAGIO_LABEL: Record<string, string> = {
@@ -175,15 +179,8 @@ function PodiumSpot({
     <div className="flex flex-col items-center">
       {/* Avatar */}
       <div className="relative mb-2">
-        <div
-          className={cn(
-            "rounded-full bg-gradient-to-br flex items-center justify-center shadow-lg ring-4",
-            config.color,
-            config.ring,
-            config.avatar,
-          )}
-        >
-          <Flame className="w-1/2 h-1/2 text-white" />
+        <div className={cn("rounded-full ring-4", config.ring, config.avatar)}>
+          <UserAvatar src={entry.avatar_url} name={entry.nome} className="h-full w-full" />
         </div>
         <div className="absolute -top-2 left-1/2 -translate-x-1/2">
           <Icon className="w-6 h-6 text-yellow-500 drop-shadow" />
@@ -241,9 +238,7 @@ function RankingRow({
           </div>
 
           {/* Avatar */}
-          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center shadow flex-shrink-0">
-            <Flame className="w-6 h-6 text-white" />
-          </div>
+          <UserAvatar src={entry.avatar_url} name={entry.nome} className="h-12 w-12 flex-shrink-0" />
 
           {/* Info */}
           <div className="flex-1 min-w-0">

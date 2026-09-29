@@ -9,7 +9,7 @@ import { getCurrentUser } from "@/lib/auth"
 import { getOrCreatePet, getPetStageInfo, updatePet } from "@/lib/pet"
 import { getGoals } from "@/lib/goals"
 import { getAchievements, getAchievementStats, checkAchievements } from "@/lib/achievements"
-import { getAcceptedFriends } from "@/lib/friends"
+import { getFriendsData } from "@/lib/friends"
 import { getTodayCompletedCount } from "@/lib/progress"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -54,7 +54,6 @@ export default function ProfilePage() {
     setPet(userPet)
 
     const goals = getGoals(user.id)
-    const friends = getAcceptedFriends(user.id)
     const completedToday = getTodayCompletedCount(user.id)
 
     // Check for new achievements
@@ -65,9 +64,13 @@ export default function ProfilePage() {
 
     const achievementStats = getAchievementStats(user.id)
 
+    void getFriendsData(user.id).then((data) => {
+      setStats((current) => ({ ...current, friendsCount: data.friends.length }))
+    })
+
     setStats({
       goalsCount: goals.length,
-      friendsCount: friends.length,
+      friendsCount: 0,
       completedToday,
       achievementStats,
     })
