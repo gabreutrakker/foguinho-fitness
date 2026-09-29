@@ -6,6 +6,11 @@ export async function GET(request: Request) {
   if (!userId) return NextResponse.json({ error: "userId é obrigatório" }, { status: 400 })
   try {
     const sql = getDb()
+    const search = new URL(request.url).searchParams.get("search")?.trim()
+    if (search) {
+      const users = await sql`SELECT id, nome, email, biografia, avatar_url FROM usuarios WHERE (LOWER(email) = LOWER(${search}) OR LOWER(nome) LIKE LOWER(${`%${search}%`})) AND id <> ${userId} ORDER BY nome LIMIT 20`
+      return NextResponse.json({ users })
+    }
     const friends = await sql`SELECT a.id, a.status, a.data_solicitacao, u.id AS amigo_id, u.nome, u.email, u.biografia, u.avatar_url, COALESCE(p.nivel, 1) AS nivel, COALESCE(p.experiencia, 0) AS experiencia, COALESCE(p.nome, 'Pet') AS pet_nome, COALESCE((SELECT COUNT(*) FROM progresso pr WHERE pr.usuario_id = u.id AND pr.completado = true), 0) AS metas_completadas FROM amigos a JOIN usuarios u ON u.id = CASE WHEN a.usuario_id = ${userId} THEN a.amigo_id ELSE a.usuario_id END LEFT JOIN pet p ON p.usuario_id = u.id WHERE (a.usuario_id = ${userId} OR a.amigo_id = ${userId}) AND a.status = 'aceito' ORDER BY u.nome`
     const requests = await sql`SELECT a.id, a.data_solicitacao, u.id AS usuario_id, u.nome, u.email, u.biografia, u.avatar_url FROM amigos a JOIN usuarios u ON u.id = a.usuario_id WHERE a.amigo_id = ${userId} AND a.status = 'pendente' ORDER BY a.data_solicitacao DESC`
     const sent = await sql`SELECT a.id, a.data_solicitacao, u.id AS amigo_id, u.nome, u.email FROM amigos a JOIN usuarios u ON u.id = a.amigo_id WHERE a.usuario_id = ${userId} AND a.status = 'pendente' ORDER BY a.data_solicitacao DESC`

@@ -11,7 +11,7 @@ import { getAcceptedFriends } from "@/lib/friends"
 import { getOrCreatePet } from "@/lib/pet"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { LogOut, Target, Trophy, Users, Flame, BarChart3 } from "lucide-react"
+import { LogOut, Target, Trophy, Users, Flame, BarChart3, Bell } from "lucide-react"
 
 export default function HomePage() {
   const router = useRouter()
@@ -174,12 +174,20 @@ export default function HomePage() {
               <BarChart3 className="w-5 h-5 mr-2" />
               Ranking
             </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="border-2 border-orange-300 text-orange-600 hover:bg-orange-50 font-semibold h-14 bg-transparent"
-              onClick={() => router.push("/profile")}
-            >
+          <Button
+            size="lg"
+            className="bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-semibold h-14"
+            onClick={() => router.push("/notifications")}
+          >
+            <Bell className="w-5 h-5 mr-2" />
+            Avisos
+          </Button>
+          <Button
+            size="lg"
+            variant="outline"
+            className="border-2 border-orange-300 text-orange-600 hover:bg-orange-50 font-semibold h-14 bg-transparent"
+            onClick={() => router.push("/profile")}
+          >
               <Users className="w-5 h-5 mr-2" />
               Perfil
             </Button>
