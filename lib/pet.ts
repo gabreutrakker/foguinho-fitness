@@ -1,4 +1,26 @@
 // Pet management utilities
+async function syncPetWithServer(pet: Pet) {
+  if (typeof window === "undefined") return
+  try {
+    const response = await fetch("/api/pet", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId: pet.usuarioId,
+        nome: pet.nome,
+        experiencia: pet.experiencia,
+        energia: pet.energia,
+        felicidade: pet.felicidade,
+        nivel: pet.nivel,
+        estagio: pet.estagio,
+      }),
+    })
+    if (!response.ok) throw new Error(`Falha ao sincronizar pet (${response.status})`)
+  } catch (error) {
+    console.error("[v0] Falha ao sincronizar pet:", error)
+  }
+}
+
 export interface Pet {
   usuarioId: string
   nome: string
@@ -43,11 +65,13 @@ export function updatePet(userId: string, updates: Partial<Pet>): Pet {
     }
     pets.push(newPet)
     localStorage.setItem("foguinho_pets", JSON.stringify(pets))
+    void syncPetWithServer(newPet)
     return newPet
   }
 
   pets[petIndex] = { ...pets[petIndex], ...updates }
   localStorage.setItem("foguinho_pets", JSON.stringify(pets))
+  void syncPetWithServer(pets[petIndex])
 
   return pets[petIndex]
 }
@@ -70,6 +94,7 @@ export function createPet(userId: string, nome: string = "Foguinho"): Pet {
 
   pets.push(newPet)
   localStorage.setItem("foguinho_pets", JSON.stringify(pets))
+  void syncPetWithServer(newPet)
 
   return newPet
 }

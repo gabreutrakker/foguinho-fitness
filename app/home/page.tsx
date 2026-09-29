@@ -7,26 +7,31 @@ import { PetDisplay } from "@/components/pet-display"
 import { DailyProgressCard } from "@/components/daily-progress-card"
 import { getCurrentUser, logout } from "@/lib/auth"
 import { getTodayCompletedCount } from "@/lib/progress"
-import { getAcceptedFriends } from "@/lib/friends"
+import { getFriendsData } from "@/lib/friends"
+import { getOrCreatePet } from "@/lib/pet"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { LogOut, Target, Trophy, Users, Flame } from "lucide-react"
+import { LogOut, Target, Trophy, Users, Flame, BarChart3, Bell } from "lucide-react"
 
 export default function HomePage() {
   const router = useRouter()
   const [userName, setUserName] = useState("")
   const [completedCount, setCompletedCount] = useState({ completed: 0, total: 0 })
   const [friendsCount, setFriendsCount] = useState(0)
+  const [pendingRequests, setPendingRequests] = useState(0)
 
   useEffect(() => {
     const user = getCurrentUser()
-    if (user) {
-      setUserName(user.nome)
-      const count = getTodayCompletedCount(user.id)
-      setCompletedCount(count)
-      const friends = getAcceptedFriends(user.id)
-      setFriendsCount(friends.length)
-    }
+    if (!user) return
+    setUserName(user.nome)
+    setCompletedCount(getTodayCompletedCount(user.id))
+    void getFriendsData(user.id).then((data) => {
+      setFriendsCount(data.friends.length)
+      setPendingRequests(data.requests.length)
+    }).catch(() => {
+      setFriendsCount(0)
+      setPendingRequests(0)
+    })
   }, [])
 
   const handleLogout = () => {
@@ -99,7 +104,7 @@ export default function HomePage() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="px-3 pb-3">
-                <p className="text-xl md:text-2xl font-bold text-gray-800 truncate">Foguinho</p>
+                <p className="text-xl md:text-2xl font-bold text-gray-800 truncate">{getCurrentUser() ? getOrCreatePet(getCurrentUser()!.id).nome : "Meu Pet"}</p>
                 <p className="text-xs md:text-sm text-gray-600 mt-1 truncate">Ver evolucoes</p>
               </CardContent>
             </Card>
@@ -140,7 +145,7 @@ export default function HomePage() {
           </div>
 
           {/* Action Buttons */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             <Button
               size="lg"
               className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-semibold h-14"
@@ -167,10 +172,27 @@ export default function HomePage() {
             </Button>
             <Button
               size="lg"
-              variant="outline"
-              className="border-2 border-orange-300 text-orange-600 hover:bg-orange-50 font-semibold h-14 bg-transparent"
-              onClick={() => router.push("/profile")}
+              className="bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white font-semibold h-14"
+              onClick={() => router.push("/ranking")}
             >
+              <BarChart3 className="w-5 h-5 mr-2" />
+              Ranking
+            </Button>
+          <Button
+            size="lg"
+            className="relative bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-semibold h-14"
+            onClick={() => router.push("/notifications")}
+          >
+            <Bell className="w-5 h-5 mr-2" />
+            Avisos
+            {pendingRequests > 0 && <span aria-label={`${pendingRequests} pedidos de amizade pendentes`} className="absolute -right-2 -top-2 flex h-6 min-w-6 items-center justify-center rounded-full border-2 border-white bg-red-600 px-1 text-xs font-bold text-white shadow">{pendingRequests > 99 ? "99+" : pendingRequests}</span>}
+          </Button>
+          <Button
+            size="lg"
+            variant="outline"
+            className="border-2 border-orange-300 text-orange-600 hover:bg-orange-50 font-semibold h-14 bg-transparent"
+            onClick={() => router.push("/profile")}
+          >
               <Users className="w-5 h-5 mr-2" />
               Perfil
             </Button>

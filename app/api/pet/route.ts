@@ -24,6 +24,44 @@ export async function GET(request: Request) {
   }
 }
 
+export async function POST(request: Request) {
+  try {
+    const sql = getDb()
+    const { userId, nome, experiencia, energia, felicidade, nivel, estagio, metasCompletadas } = await request.json()
+
+    // Upsert do pet (cria se nao existir, atualiza se existir)
+    const existing = await sql`SELECT id FROM pet WHERE usuario_id = ${userId}`
+
+    let pet
+    if (existing.length === 0) {
+      const result = await sql`
+        INSERT INTO pet (usuario_id, nome, experiencia, energia, felicidade, nivel, estagio, ultima_alimentacao)
+        VALUES (${userId}, ${nome || "Foguinho"}, ${experiencia || 0}, ${energia || 100}, ${felicidade || 100}, ${nivel || 1}, ${estagio || "bebe"}, CURRENT_TIMESTAMP)
+        RETURNING *
+      `
+      pet = result[0]
+    } else {
+      const result = await sql`
+        UPDATE pet
+        SET nome = ${nome || "Foguinho"},
+            experiencia = ${experiencia || 0},
+            energia = ${energia || 100},
+            felicidade = ${felicidade || 100},
+            nivel = ${nivel || 1},
+            estagio = ${estagio || "bebe"}
+        WHERE usuario_id = ${userId}
+        RETURNING *
+      `
+      pet = result[0]
+    }
+
+    return NextResponse.json({ pet })
+  } catch (error) {
+    console.error("[v0] Sync pet error:", error)
+    return NextResponse.json({ error: "Erro ao sincronizar pet" }, { status: 500 })
+  }
+}
+
 export async function PUT(request: Request) {
   try {
     const sql = getDb()

@@ -1,152 +1,66 @@
-// Friends management utilities
 import type { User } from "./auth"
 
-export interface Friend {
+export interface FriendRecord {
   id: string
-  usuarioId: string
-  amigoId: string
+  usuario_id: string
+  amigo_id: string
   status: "pendente" | "aceito" | "recusado"
-  dataSolicitacao: string
+  nome: string
+  email: string
+  biografia?: string | null
+  avatar_url?: string | null
+  nivel?: number
+  experiencia?: number
+  pet_nome?: string
+  metas_completadas?: number
 }
 
-// Get all users (for searching friends)
-export function getAllUsers(): User[] {
-  if (typeof window === "undefined") return []
-
-  const usersStr = localStorage.getItem("foguinho_users")
-  if (!usersStr) return []
-
-  return JSON.parse(usersStr)
+async function request<T>(url: string, options?: RequestInit): Promise<T> {
+  const response = await fetch(url, options)
+  const data = await response.json()
+  if (!response.ok) throw new Error(data.error || "Não foi possível concluir a operação")
+  return data
 }
 
-// Get user by id
-export function getUserById(userId: string): User | null {
-  const users = getAllUsers()
-  return users.find((u) => u.id === userId) || null
+export async function getFriendsData(userId: string) {
+  return request<{ friends: FriendRecord[]; requests: FriendRecord[]; sent: FriendRecord[] }>(`/api/friends?userId=${encodeURIComponent(userId)}`)
 }
 
-// Get all friend relationships for user
-export function getFriendships(userId: string): Friend[] {
-  if (typeof window === "undefined") return []
-
-  const friendsStr = localStorage.getItem("foguinho_friends")
-  if (!friendsStr) return []
-
-  const friends: Friend[] = JSON.parse(friendsStr)
-  return friends.filter((f) => f.usuarioId === userId || f.amigoId === userId)
+export async function searchUsers(userId: string, search: string) {
+  const data = await request<{ users: User[] }>(`/api/friends?userId=${encodeURIComponent(userId)}&search=${encodeURIComponent(search)}`)
+  return data.users
 }
 
-// Get accepted friends
-export function getAcceptedFriends(userId: string): User[] {
-  const friendships = getFriendships(userId).filter((f) => f.status === "aceito")
-
-  const friendIds = friendships.map((f) => (f.usuarioId === userId ? f.amigoId : f.usuarioId))
-
-  return friendIds.map((id) => getUserById(id)).filter((u) => u !== null) as User[]
+export async function sendFriendRequest(userId: string, friendEmail: string) {
+  return request(`/api/friends`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ userId, friendEmail }) })
 }
 
-// Get pending friend requests (received)
-export function getPendingRequests(userId: string): Array<Friend & { user: User }> {
-  const friendships = getFriendships(userId).filter((f) => f.amigoId === userId && f.status === "pendente")
-
-  return friendships
-    .map((f) => {
-      const user = getUserById(f.usuarioId)
-      return user ? { ...f, user } : null
-    })
-    .filter((f) => f !== null) as Array<Friend & { user: User }>
+export async function updateFriendRequest(id: string, userId: string, status: "aceito" | "recusado") {
+  return request(`/api/friends`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, userId, status }) })
 }
 
-// Get sent friend requests
-export function getSentRequests(userId: string): Array<Friend & { user: User }> {
-  const friendships = getFriendships(userId).filter((f) => f.usuarioId === userId && f.status === "pendente")
-
-  return friendships
-    .map((f) => {
-      const user = getUserById(f.amigoId)
-      return user ? { ...f, user } : null
-    })
-    .filter((f) => f !== null) as Array<Friend & { user: User }>
+export async function removeFriend(friendshipId: string, userId: string) {
+  return request(`/api/friends?id=${encodeURIComponent(friendshipId)}&userId=${encodeURIComponent(userId)}`, { method: "DELETE" })
 }
 
-// Send friend request
-export function sendFriendRequest(userId: string, amigoId: string): { success: boolean; error?: string } {
-  if (userId === amigoId) {
-    return { success: false, error: "Você não pode adicionar a si mesmo" }
-  }
+export function getAcceptedFriends(_userId: string): User[] { return [] }
+export function getPendingRequests(_userId: string): never[] { return [] }
+export function getSentRequests(_userId: string): never[] { return [] }
+export function getAllUsers(): User[] { return [] }
+export function getFriendProgress(_friendId: string): number { return 0 }
+export function getUserById(_userId: string): User | null { return null }
+export function getFriendships(_userId: string): never[] { return [] }
+export function acceptFriendRequest(_id: string): boolean { return false }
+export function rejectFriendRequest(_id: string): boolean { return false }
 
-  const friendsStr = localStorage.getItem("foguinho_friends")
-  const friends: Friend[] = friendsStr ? JSON.parse(friendsStr) : []
+export type Friend = FriendRecord
+export type { User }
 
-  // Check if friendship already exists
-  const existing = friends.find(
-    (f) => (f.usuarioId === userId && f.amigoId === amigoId) || (f.usuarioId === amigoId && f.amigoId === userId),
-  )
-
-  if (existing) {
-    return { success: false, error: "Solicitação já existe" }
-  }
-
-  const newFriend: Friend = {
-    id: Date.now().toString(),
-    usuarioId: userId,
-    amigoId,
-    status: "pendente",
-    dataSolicitacao: new Date().toISOString(),
-  }
-
-  friends.push(newFriend)
-  localStorage.setItem("foguinho_friends", JSON.stringify(friends))
-
-  return { success: true }
+export function friendRecordToUser(friend: FriendRecord): User {
+  return { id: String(friend.amigo_id), nome: friend.nome, email: friend.email, biografia: friend.biografia || "", avatar_url: friend.avatar_url || "", data_criacao: new Date().toISOString() }
 }
 
-// Accept friend request
-export function acceptFriendRequest(friendshipId: string): boolean {
-  const friendsStr = localStorage.getItem("foguinho_friends")
-  if (!friendsStr) return false
-
-  const friends: Friend[] = JSON.parse(friendsStr)
-  const friendship = friends.find((f) => f.id === friendshipId)
-
-  if (!friendship) return false
-
-  friendship.status = "aceito"
-  localStorage.setItem("foguinho_friends", JSON.stringify(friends))
-
-  return true
-}
-
-// Reject friend request
-export function rejectFriendRequest(friendshipId: string): boolean {
-  const friendsStr = localStorage.getItem("foguinho_friends")
-  if (!friendsStr) return false
-
-  const friends: Friend[] = JSON.parse(friendsStr)
-  const filteredFriends = friends.filter((f) => f.id !== friendshipId)
-
-  localStorage.setItem("foguinho_friends", JSON.stringify(filteredFriends))
-
-  return true
-}
-
-// Remove friend
-export function removeFriend(userId: string, friendId: string): boolean {
-  const friendsStr = localStorage.getItem("foguinho_friends")
-  if (!friendsStr) return false
-
-  const friends: Friend[] = JSON.parse(friendsStr)
-  const filteredFriends = friends.filter(
-    (f) => !((f.usuarioId === userId && f.amigoId === friendId) || (f.usuarioId === friendId && f.amigoId === userId)),
-  )
-
-  localStorage.setItem("foguinho_friends", JSON.stringify(filteredFriends))
-
-  return true
-}
-
-// Get friend's daily progress percentage
-export function getFriendProgress(friendId: string): number {
-  const { getDailyCompletionPercentage } = require("./progress")
-  return getDailyCompletionPercentage(friendId)
+export async function getFriendProgressAsync(userId: string) {
+  const data = await request<{ ranking: Array<{ usuario_id: string; metas_completadas: number }> }>(`/api/ranking?userId=${encodeURIComponent(userId)}`)
+  return data.ranking.find((entry) => entry.usuario_id === userId)?.metas_completadas || 0
 }
